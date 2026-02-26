@@ -3,7 +3,8 @@
   "package": "com.holyworld.autoreply.mixin",
   "compatibilityLevel": "JAVA_17",
   "client": [
-    "ChatHudMixin"
+    "ChatHudMixin",
+    "ChatScreenMixin"
   ],
   "injectors": {
     "defaultRequire": 1
