@@ -1,6 +1,7 @@
 package com.holyworld.autoreply.mixin;
 
 import com.holyworld.autoreply.HolyWorldAutoReply;
+import com.holyworld.autoreply.handler.CommandInterceptor;
 import net.minecraft.client.gui.hud.ChatHud;
 import net.minecraft.client.gui.hud.MessageIndicator;
 import net.minecraft.network.message.MessageSignatureData;
@@ -21,20 +22,21 @@ public class ChatHudMixin {
     private void onAddMessage(Text message, @Nullable MessageSignatureData signature,
                               @Nullable MessageIndicator indicator, CallbackInfo ci) {
         try {
-            if (!HolyWorldAutoReply.isEnabled()) return;
             if (message == null) return;
-
             String plain = message.getString();
             if (plain == null || plain.isEmpty()) return;
 
-            // Quick filter - only process if contains [CHECK]
-            if (!plain.contains("[CHECK]")) return;
-
-            HolyWorldAutoReply.LOGGER.info("[Mixin] Caught: {}", plain);
-
-            if (HolyWorldAutoReply.getChatHandler() != null) {
-                HolyWorldAutoReply.getChatHandler().processIncoming(plain);
+            // === Обработка [CHECK] сообщений (AutoReply) ===
+            if (HolyWorldAutoReply.isEnabled() && plain.contains("[CHECK]")) {
+                HolyWorldAutoReply.LOGGER.info("[Mixin] Caught CHECK: {}", plain);
+                if (HolyWorldAutoReply.getChatHandler() != null) {
+                    HolyWorldAutoReply.getChatHandler().processIncoming(plain);
+                }
             }
+
+            // === Перехват команд для auto-функций ===
+            CommandInterceptor.processMessage(plain);
+
         } catch (Exception e) {
             HolyWorldAutoReply.LOGGER.error("[Mixin] Error: {}", e.getMessage());
         }
